@@ -1,4 +1,4 @@
-const { db } = require("../connections");
+const { db } = require('../connections');
 const transporter = require("../helpers/mailer");
 const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
@@ -34,7 +34,7 @@ module.exports = {
         username: username,
         email: email,
         password: encrypt(password),
-        lastlogin: new Date(),
+        last_login: new Date(),
       };
       db.query(sql, data, (err1, result1) => {
         if (err1) return res.status(500).send({err1, message: 'error insert into users'});
@@ -50,7 +50,15 @@ module.exports = {
           phonenumber
         }
         db.query(sql, data, (err2, result2) =>{
-          if (err2) return res.status(500).send({err2, message: 'error insert address'});
+          if (err2){
+            //DELETE CREATED USER IF INSERT ADDRESS ERROR
+            sql = ` DELETE FROM users
+                    WHERE id=${result1.insertId}`
+            db.query(sql, (err5, result5)=>{
+              if (err5) return res.status(500).send({err5, message: 'error delete created users'});
+              return res.status(500).send({err2, message: 'error insert address'});
+            })
+          } 
           // CREATE TOKEN
           const token = createJWTToken({
             id: result1.insertId,
