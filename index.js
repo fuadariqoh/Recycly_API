@@ -17,9 +17,10 @@ app.get("/", (req, res) => {
   res.status(200).send("<h1>SELAMAT DATANG DI API FINAL PROJECT JC 12</h1>");
 });
 
-const { authRouters, rewardRouters } = require("./routers");
+const { authRouters, rewardRouters, programRouters } = require("./routers");
 
 app.use("/users", authRouters);
 app.use("/users", rewardRouters);
+app.use("/programs", programRouters);
 
 app.listen(PORT, () => console.log(`APP JALAN DI PORT ${PORT}`));
