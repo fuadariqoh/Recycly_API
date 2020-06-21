@@ -274,4 +274,7 @@ module.exports = {
       }
     });
   },
+  proofimage: (req, res) => {
+    console.log("ini req body", req.files);
+  },
 };
