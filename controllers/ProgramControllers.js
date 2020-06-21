@@ -25,7 +25,7 @@ module.exports = {
                     fs.unlinkSync('./public' + imagePath);
                     return res.status(500).json({message:"There is an error on the server. Please contact the administrator.",error:err.message});
                 }
-                sql=` SELECT p.*,c.id AS idcat,c.name AS catnama
+                sql=` SELECT p.*,c.name AS categoryName
                       FROM programs p
                         JOIN category c
                         ON p.categoryId=c.id
@@ -41,7 +41,7 @@ module.exports = {
     }
   },
   getProgram:(req,res)=>{
-    var sql= `  SELECT p.*,c.id AS idcat,c.name AS catnama
+    var sql= `  SELECT p.*,c.name AS categoryName
                 FROM programs p
                   JOIN category c
                   ON p.categoryId=c.id
@@ -50,5 +50,90 @@ module.exports = {
       if(err) res.status(500).send(err)
       return res.status(200).send(result)
     })
+  },
+  //================ USER PAGE ================//
+
+  getProgramUser:(req,res)=>{
+    const {search, filter, page}=req.query
+    if(search){
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.name LIKE '%${search}%'
+                    LIMIT ${page},8`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get program search'})
+            return res.send(result)
+        })
+    }else if(filter){
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.categoryId=${filter}
+                    LIMIT ${page},8`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get total program'})
+            return res.send(result)
+        })
+    }else{
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0
+                    LIMIT ${page},8`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get total program'})
+            return res.send(result)
+        })
+    }
+  },
+  getTotalProgram:(req,res)=>{
+      const {search, filter}=req.query
+      if(search){
+          console.log('masuk search')
+          var sql= `  SELECT COUNT(id) AS total
+                      FROM programs 
+                      WHERE is_deleted=0 AND name LIKE '%${search}%'`
+          db.query(sql,(err,result)=>{
+              if(err) res.status(500).send({err,message:'error get total program'})
+              console.log(result)
+              console.log(search)
+              return res.send(result[0])
+          })
+      }else if(filter){
+          console.log('masuk filter')
+          var sql= `  SELECT COUNT(id) AS total
+                      FROM programs 
+                      WHERE is_deleted=0 AND categoryId=${filter}`
+          db.query(sql,(err,result)=>{
+              if(err) res.status(500).send({err,message:'error get total program'})
+              return res.send(result[0])
+          })
+      }else{
+          var sql= `  SELECT COUNT(id) AS total
+                      FROM programs 
+                      WHERE is_deleted=0`
+          db.query(sql,(err,result)=>{
+              if(err) res.status(500).send({err,message:'error get total program'})
+              return res.send(result[0])
+          })
+      }
+  },
+  selectProgram:(req,res)=>{
+      const {id}=req.params
+      var sql=`   SELECT * 
+                  FROM programs 
+                  WHERE id=${id}`
+      db.query(sql,(err,result)=>{
+          if(err) res.status(500).send(err)
+          if(result.length){
+              res.status(200).send(result[0])
+          }else{
+              res.status(500).send({message:'program not found'})
+          }
+      })
   }
 };
