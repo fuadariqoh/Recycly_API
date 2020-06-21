@@ -51,7 +51,7 @@ module.exports = {
       return res.status(200).send(result)
     })
   },
-  //================ USER PAGE ================//
+  //================ USER PAGE FOR PAGINATION ================//
 
   getProgramUser:(req,res)=>{
     const {search, filter, page}=req.query
@@ -61,7 +61,7 @@ module.exports = {
                         JOIN category c 
                         ON p.categoryId=c.id
                     WHERE p.is_deleted=0 AND p.name LIKE '%${search}%'
-                    LIMIT ${page},8`
+                    LIMIT ${page},6`
         db.query(sql,(err,result)=>{
             if(err) res.status(500).send({err,message:'error get program search'})
             return res.send(result)
@@ -72,7 +72,7 @@ module.exports = {
                         JOIN category c 
                         ON p.categoryId=c.id
                     WHERE p.is_deleted=0 AND p.categoryId=${filter}
-                    LIMIT ${page},8`
+                    LIMIT ${page},6`
         db.query(sql,(err,result)=>{
             if(err) res.status(500).send({err,message:'error get total program'})
             return res.send(result)
@@ -83,7 +83,7 @@ module.exports = {
                         JOIN category c 
                         ON p.categoryId=c.id
                     WHERE p.is_deleted=0
-                    LIMIT ${page},8`
+                    LIMIT ${page},6`
         db.query(sql,(err,result)=>{
             if(err) res.status(500).send({err,message:'error get total program'})
             return res.send(result)
