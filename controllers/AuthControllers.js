@@ -249,11 +249,23 @@ module.exports = {
     });
   },
   getUser: (req, res) => {
-    let sql = `select id,username from users where is_deleted=0`;
-    db.query(sql, (error, result) => {
-      if (error) res.status(500).send(error);
-      res.status(200).send(result);
-    });
+    const { search, page } = req.query;
+    console.log(page);
+    if (search) {
+      console.log("masuk search", page);
+      let sql = `select id,username from users where is_deleted=0 AND id LIKE '%${search}%'  `;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    } else {
+      console.log("masuk else", page);
+      let sql = `select id,username from users where is_deleted=0 LIMIT ${page},6`;
+      db.query(sql, (error, result) => {
+        if (error) res.status(500).send(error);
+        res.status(200).send(result);
+      });
+    }
   },
   banUser: (req, res) => {
     let { id } = req.params;
@@ -273,6 +285,29 @@ module.exports = {
         });
       }
     });
+  },
+  getTotalUser: (req, res) => {
+    const { search } = req.query;
+    if (search) {
+      // console.log('masuk search')
+      var sql = `  SELECT COUNT(id) AS total
+                          FROM users 
+                          WHERE is_deleted=0 AND id LIKE '%${search}%'`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        return res.send(result[0]);
+      });
+    } else {
+      var sql = `  SELECT COUNT(id) AS total
+                        FROM users 
+                        WHERE is_deleted=0`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        return res.send(result[0]);
+      });
+    }
   },
   proofimage: (req, res) => {
     console.log("ini req body", req.files);

@@ -35,49 +35,71 @@ module.exports = {
       });
     });
   },
-  // getRewardUser: (req, res) => {
-  //   const { search, page } = req.query;
-  //   if (search) {
-  //     var sql = `  SELECT * from reward
-  //                   WHERE title LIKE '%${search}%'
-  //                   LIMIT ${page},6`;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get program reward" });
-  //       return res.send(result);
-  //     });
-  //   } else {
-  //     var sql = `  SELECT * from reward
-  //                   LIMIT ${page},6`;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get total reward" });
-  //       return res.send(result);
-  //     });
-  //   }
-  // },
-  // getTotalReward: (req, res) => {
-  //   const { search } = req.query;
-  //   if (search) {
-  //     console.log("masuk search");
-  //     var sql = `  SELECT COUNT(id) AS total
-  //                     FROM reward
-  //                     WHERE title LIKE '%${search}%'`;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get total program" });
-  //       console.log(result);
-  //       console.log(search);
-  //       return res.send(result[0]);
-  //     });
-  //   } else {
-  //     var sql = `  SELECT COUNT(id) AS total
-  //                     FROM reward `;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get total program" });
-  //       return res.send(result[0]);
-  //     });
-  //   }
-  // },
+  getRewardUser: (req, res) => {
+    const { search, page, sort } = req.query;
+    console.log(sort);
+    if (search) {
+      var sql = `  SELECT * from reward
+                    WHERE title LIKE '%${search}%'
+                    LIMIT ${page},6`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get program reward" });
+        return res.send(result);
+      });
+    } else if (search && sort) {
+      var sql = `  SELECT * from reward
+                    WHERE title LIKE '%${search}%'
+                    ORDER BY ${sort}
+                    LIMIT ${page},6`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get program reward" });
+        return res.send(result);
+      });
+    } else if (sort) {
+      let sql = ` SELECT * from reward
+                ORDER BY ${sort}
+                LIMIT ${page},6
+                
+      `;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get program reward" });
+        return res.send(result);
+      });
+    } else {
+      var sql = `  SELECT * from reward
+                    LIMIT ${page},6`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total reward" });
+        return res.send(result);
+      });
+    }
+  },
+  getTotalReward: (req, res) => {
+    const { search, page } = req.query;
+    if (search) {
+      console.log("masuk search");
+      var sql = `  SELECT COUNT(id) AS total
+                      FROM reward
+                      WHERE title LIKE '%${search}%' `;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        console.log(result);
+        console.log(search);
+        return res.send(result[0]);
+      });
+    } else {
+      var sql = `  SELECT COUNT(id) AS total
+                      FROM reward `;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        return res.send(result[0]);
+      });
+    }
+  },
 };
