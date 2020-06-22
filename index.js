@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
 const { authRouters, rewardRouters, programRouters } = require("./routers");
 
 app.use("/users", authRouters);
-app.use("/users", rewardRouters);
+app.use("/reward", rewardRouters);
 app.use("/programs", programRouters);
 
 app.listen(PORT, () => console.log(`APP JALAN DI PORT ${PORT}`));

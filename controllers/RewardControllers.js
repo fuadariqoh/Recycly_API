@@ -12,38 +12,72 @@ module.exports = {
     });
   },
   buyReward: (req, res) => {
-    let sql = ` insert into transactionReward SET ?  `;
+    console.log(req.body);
+    let sql = ` insert into transactionReward SET ?`;
     db.query(sql, req.body, (err, result) => {
       if (err) res.status(500).send(err);
-      res.status(200).send(req.body);
-    });
-  },
-  getTransactionReward: (req, res) => {
-    let sql = `select tr.*,u.username as username,r.title from transactionReward tr
-     join  users u on tr.userId=u.id 
-    join reward r on tr.rewardId=r.id where tr.status='waiting_send'`;
-    db.query(sql, (error, result) => {
-      if (error) res.status(500).send(error);
-      res.status(200).send(result);
-    });
-  },
-  acceptTransactionReward: (req, res) => {
-    let { id } = req.params;
-    let { nomor_resi } = req.body;
-    let sql = `select * from transactionReward where id=${id}`;
-    db.query(sql, (err, result) => {
-      if (err) res.status(500).send(err);
-      if (result) {
-        sql = `update transactionReward set ? where id=${id}`;
-        obj = {
-          status: "on_courier",
-          nomor_resi: nomor_resi,
+      sql = `select points from users where id=${req.body.userId}`;
+      db.query(sql, (err1, result1) => {
+        if (err) res.status(500).send(err1);
+        console.log(result1[0].points);
+        var obj = {
+          points: result1[0].points - req.body.decreasedPoints,
         };
+        sql = `update users set ? where id=${req.body.userId}`;
         db.query(sql, obj, (err2, result2) => {
           if (err2) res.status(500).send(err2);
-          res.status(200).send(result2);
+          sql = `select points from users where id=${req.body.userId}`;
+          db.query(sql, (err3, result3) => {
+            if (err3) res.status(500).send(err3);
+            res.status(200).send(result3);
+          });
         });
-      }
+      });
     });
   },
+  // getRewardUser: (req, res) => {
+  //   const { search, page } = req.query;
+  //   if (search) {
+  //     var sql = `  SELECT * from reward
+  //                   WHERE title LIKE '%${search}%'
+  //                   LIMIT ${page},6`;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get program reward" });
+  //       return res.send(result);
+  //     });
+  //   } else {
+  //     var sql = `  SELECT * from reward
+  //                   LIMIT ${page},6`;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get total reward" });
+  //       return res.send(result);
+  //     });
+  //   }
+  // },
+  // getTotalReward: (req, res) => {
+  //   const { search } = req.query;
+  //   if (search) {
+  //     console.log("masuk search");
+  //     var sql = `  SELECT COUNT(id) AS total
+  //                     FROM reward
+  //                     WHERE title LIKE '%${search}%'`;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get total program" });
+  //       console.log(result);
+  //       console.log(search);
+  //       return res.send(result[0]);
+  //     });
+  //   } else {
+  //     var sql = `  SELECT COUNT(id) AS total
+  //                     FROM reward `;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get total program" });
+  //       return res.send(result[0]);
+  //     });
+  //   }
+  // },
 };
