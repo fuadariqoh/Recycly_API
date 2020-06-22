@@ -51,11 +51,64 @@ module.exports = {
       return res.status(200).send(result)
     })
   },
-  //================ USER PAGE FOR PAGINATION ================//
+  //================ USER PAGE FOR PAGINATION, SEARCH, FILTER, SORT ================//
 
   getProgramUser:(req,res)=>{
-    const {search, filter, page}=req.query
-    if(search){
+    const {search, filter, sort, page}=req.query
+    console.log(req.query)
+    if(search&&filter&&sort){
+        // console.log('masuk get search, filter, sort')
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.name LIKE '%${search}%' AND p.categoryId=${filter}
+                    ORDER BY ${sort}
+                    LIMIT ${page},6`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get program search'})
+            return res.send(result)
+        })
+    }else if(search&&filter){
+        // console.log('masuk get search, filter')
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.name LIKE '%${search}%' AND p.categoryId=${filter}
+                    LIMIT ${page},6`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get program search'})
+            return res.send(result)
+        })
+    }else if(search&&sort){
+        // console.log('masuk get search, sort')
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.name LIKE '%${search}%'
+                    ORDER BY ${sort}
+                    LIMIT ${page},6`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get program search'})
+            return res.send(result)
+        })
+    }else if(filter&&sort){
+        // console.log('masuk get filter, sort')
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0 AND p.categoryId=${filter}
+                    ORDER BY ${sort}
+                    LIMIT ${page},6`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get program search'})
+            return res.send(result)
+        })
+    }else if(search){
+        // console.log('masuk search')
         var sql= `  SELECT p.*,c.name AS categoryName
                     FROM programs p 
                         JOIN category c 
@@ -67,6 +120,7 @@ module.exports = {
             return res.send(result)
         })
     }else if(filter){
+        // console.log('masuk filter')
         var sql= `  SELECT p.*,c.name AS categoryName
                     FROM programs p 
                         JOIN category c 
@@ -77,7 +131,21 @@ module.exports = {
             if(err) res.status(500).send({err,message:'error get total program'})
             return res.send(result)
         })
+    }else if(sort){
+        // console.log('masuk sort')
+        var sql= `  SELECT p.*,c.name AS categoryName
+                    FROM programs p 
+                        JOIN category c 
+                        ON p.categoryId=c.id
+                    WHERE p.is_deleted=0
+                    ORDER BY ${sort}
+                    LIMIT ${page},6`
+        db.query(sql,(err,result)=>{
+            if(err) res.status(500).send({err,message:'error get total program'})
+            return res.send(result)
+        })
     }else{
+        // console.log('masuk all')
         var sql= `  SELECT p.*,c.name AS categoryName
                     FROM programs p 
                         JOIN category c 
@@ -92,11 +160,11 @@ module.exports = {
   },
   getTotalProgram:(req,res)=>{
       const {search, filter}=req.query
-      if(search){
-          console.log('masuk search')
+      if(search&&filter){
+        //   console.log('masuk filter & search')
           var sql= `  SELECT COUNT(id) AS total
                       FROM programs 
-                      WHERE is_deleted=0 AND name LIKE '%${search}%'`
+                      WHERE is_deleted=0 AND categoryId=${filter} AND name LIKE '%${search}%'`
           db.query(sql,(err,result)=>{
               if(err) res.status(500).send({err,message:'error get total program'})
               console.log(result)
@@ -104,7 +172,7 @@ module.exports = {
               return res.send(result[0])
           })
       }else if(filter){
-          console.log('masuk filter')
+        //   console.log('masuk filter')
           var sql= `  SELECT COUNT(id) AS total
                       FROM programs 
                       WHERE is_deleted=0 AND categoryId=${filter}`
@@ -112,6 +180,15 @@ module.exports = {
               if(err) res.status(500).send({err,message:'error get total program'})
               return res.send(result[0])
           })
+    }else if(search){
+            // console.log('masuk search')
+            var sql= `  SELECT COUNT(id) AS total
+                        FROM programs 
+                        WHERE is_deleted=0 AND name LIKE '%${search}%'`
+            db.query(sql,(err,result)=>{
+                if(err) res.status(500).send({err,message:'error get total program'})
+                return res.send(result[0])
+            })
       }else{
           var sql= `  SELECT COUNT(id) AS total
                       FROM programs 
@@ -135,5 +212,13 @@ module.exports = {
               res.status(500).send({message:'program not found'})
           }
       })
-  }
+  },
+  getCategory:(req,res)=>{
+    var sql=`   SELECT * 
+                FROM category`
+    db.query(sql,(err,result)=>{
+        if(err) res.status(500).send({status:false})
+        return res.status(200).send(result)
+    })
+},
 };
