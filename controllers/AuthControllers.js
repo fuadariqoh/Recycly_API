@@ -277,4 +277,16 @@ module.exports = {
   proofimage: (req, res) => {
     console.log("ini req body", req.files);
   },
+  keepLogin: (req, res) => {
+    // console.log(req.user)
+    var sql = `select * from users where id=${req.user.id}`;
+    db.query(sql, (err, result) => {
+      if (err) return res.status(500).send(err);
+      const token = createJWTToken({
+        id: result[0].id,
+        username: result[0].username,
+      });
+      res.status(200).send({ ...result[0], token: token });
+    });
+  },
 };
