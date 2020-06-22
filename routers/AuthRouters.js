@@ -12,5 +12,6 @@ router.get("/resetpassword", auth, authControllers.ResetPassword);
 router.get("/getusers", authControllers.getUser);
 router.put("/banuser/:id", authControllers.banUser);
 router.post("/proofimage", auth, authControllers.proofimage);
+router.get("/keeplogin", auth, authControllers.keepLogin);
 
 module.exports = router;
