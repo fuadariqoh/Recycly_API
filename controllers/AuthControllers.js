@@ -2,6 +2,7 @@ const { db } = require("../connections");
 const transporter = require("../helpers/mailer");
 const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
+const { uploader } = require("../helpers/uploader");
 
 module.exports = {
   register: (req, res) => {
@@ -310,7 +311,29 @@ module.exports = {
     }
   },
   proofimage: (req, res) => {
-    console.log("ini req body", req.files);
+    const { id } = req.query;
+    console.log(id);
+    try {
+      const path = "/paymentproof";
+      const upload = uploader(path, "PROOF").fields([{ name: "image" }]);
+      upload(req, res, (err) => {
+        if (err) res.status(500).send(err);
+        console.log("lewat");
+        const { image } = req.files;
+        const imagePath = image ? path + "/" + image[0].filename : null;
+        var sql = `update transaction SET ? where id=${id}`;
+        obj = {
+          imgproof: imagePath,
+        };
+        db.query(sql, obj, (err1, result1) => {
+          console.log("masuk insert", obj);
+          if (err1) res.status(500).send(err1);
+          return res.status(200).send(result1);
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
   },
   keepLogin: (req, res) => {
     // console.log(req.user)

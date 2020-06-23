@@ -36,70 +36,129 @@ module.exports = {
     });
   },
   getRewardUser: (req, res) => {
-    const { search, page, sort } = req.query;
-    console.log(sort);
-    if (search) {
-      var sql = `  SELECT * from reward
-                    WHERE title LIKE '%${search}%'
-                    LIMIT ${page},6`;
+    const { categoryid } = req.query;
+    console.log(categoryid);
+    if (categoryid == 1) {
+      console.log("masuk category1");
+      let sql = `select * from reward where categoryid=${1}`;
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get program reward" });
-        return res.send(result);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
-    } else if (search && sort) {
-      var sql = `  SELECT * from reward
-                    WHERE title LIKE '%${search}%'
-                    ORDER BY ${sort}
-                    LIMIT ${page},6`;
+    } else if (categoryid == 2) {
+      let sql = `select * from reward where categoryid=${2}`;
+
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get program reward" });
-        return res.send(result);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
-    } else if (sort) {
-      let sql = ` SELECT * from reward
-                ORDER BY ${sort}
-                LIMIT ${page},6
-                
-      `;
+    } else if (categoryid == 3) {
+      let sql = `select * from reward where categoryid=${3}`;
+
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get program reward" });
-        return res.send(result);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
     } else {
-      var sql = `  SELECT * from reward
-                    LIMIT ${page},6`;
+      let sql = `select * from reward where categoryid=${4}`;
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get total reward" });
-        return res.send(result);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
     }
+
+    // if (search) {
+    //   var sql = `  SELECT * from reward
+    //                 WHERE title LIKE '%${search}%'
+    //                 LIMIT ${page},6`;
+    //   db.query(sql, (err, result) => {
+    //     if (err)
+    //       res.status(500).send({ err, message: "error get program reward" });
+    //     return res.send(result);
+    //   });
+    // } else if (search && sort) {
+    //   var sql = `  SELECT * from reward
+    //                 WHERE title LIKE '%${search}%'
+    //                 ORDER BY ${sort}
+    //                 LIMIT ${page},6`;
+    //   db.query(sql, (err, result) => {
+    //     if (err)
+    //       res.status(500).send({ err, message: "error get program reward" });
+    //     return res.send(result);
+    //   });
+    // } else if (sort) {
+    //   let sql = ` SELECT * from reward
+    //             ORDER BY ${sort}
+    //             LIMIT ${page},6
+
+    //   `;
+    //   db.query(sql, (err, result) => {
+    //     if (err)
+    //       res.status(500).send({ err, message: "error get program reward" });
+    //     return res.send(result);
+    //   });
+    // } else {
+    //   var sql = `  SELECT * from reward
+    //                 LIMIT ${page},6`;
+    //   db.query(sql, (err, result) => {
+    //     if (err)
+    //       res.status(500).send({ err, message: "error get total reward" });
+    //     return res.send(result);
+    //   });
+    // }
   },
+  // SEMENTARA TIDAK DIPAKAI
   getTotalReward: (req, res) => {
-    const { search, page } = req.query;
-    if (search) {
-      console.log("masuk search");
-      var sql = `  SELECT COUNT(id) AS total
-                      FROM reward
-                      WHERE title LIKE '%${search}%' `;
+    const { categoryid } = req.query;
+    if (categoryid == 1) {
+      let sql = `select count(id) AS total from reward where categoryid=1`;
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get total program" });
-        console.log(result);
-        console.log(search);
-        return res.send(result[0]);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    } else if (categoryid == 2) {
+      let sql = `select count(id) AS total from reward where categoryid=2`;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    } else if (categoryid == 3) {
+      let sql = `select count(id) AS total from reward where categoryid=3`;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
     } else {
-      var sql = `  SELECT COUNT(id) AS total
-                      FROM reward `;
+      let sql = `select count(id) AS total from reward where categoryid=4`;
       db.query(sql, (err, result) => {
-        if (err)
-          res.status(500).send({ err, message: "error get total program" });
-        return res.send(result[0]);
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
       });
     }
   },
+  // SEMENTARA TIDAK DIPAKAI
+
+  //   if (search) {
+  //     console.log("masuk search");
+  //     var sql = `  SELECT COUNT(id) AS total
+  //                     FROM reward
+  //                     WHERE title LIKE '%${search}%' `;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get total program" });
+  //       console.log(result);
+  //       console.log(search);
+  //       return res.send(result[0]);
+  //     });
+  //   } else {
+  //     console.log("masuk else");
+  //     var sql = `  SELECT COUNT(id) AS total
+  //                     FROM reward `;
+  //     db.query(sql, (err, result) => {
+  //       if (err)
+  //         res.status(500).send({ err, message: "error get total program" });
+  //       return res.send(result[0]);
+  //     });
+  //   }
+  // },
 };
