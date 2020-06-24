@@ -8,5 +8,7 @@ router.post("/buyreward", rewardControllers.buyReward);
 // router.put("/acceptreward/:id", rewardControllers.acceptTransactionReward);
 router.get("/getrewarduser", rewardControllers.getRewardUser);
 router.get("/totalreward", rewardControllers.getTotalReward);
+router.get("/rewarddetails", rewardControllers.getRewardDetail);
+router.get("/getothergift", rewardControllers.getOtherGift);
 
 module.exports = router;

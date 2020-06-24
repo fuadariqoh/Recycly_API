@@ -36,8 +36,8 @@ module.exports = {
     });
   },
   getRewardUser: (req, res) => {
-    const { categoryid } = req.query;
-    console.log(categoryid);
+    const { categoryid, id } = req.query;
+    console.log(id, "idreward");
     if (categoryid == 1) {
       console.log("masuk category1");
       let sql = `select * from reward where categoryid=${1}`;
@@ -136,7 +136,29 @@ module.exports = {
       });
     }
   },
-  // SEMENTARA TIDAK DIPAKAI
+  getRewardDetail: (req, res) => {
+    const { id } = req.query;
+    console.log(id, "masuk req reward detail");
+    let sql = `select * from reward where id=${id}`;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send(err);
+      res.status(200).send(result);
+    });
+  },
+  getOtherGift: (req, res) => {
+    const { id } = req.query;
+    console.log(id, "masuk get other gift");
+    let sql = `select categoryid from reward where id=${id}`;
+    db.query(sql, (err, result1) => {
+      console.log(result1[0].categoryid);
+      if (err) res.status(500).send(err);
+      sql = `select * from reward where categoryid=${result1[0].categoryid} AND NOT id=${id} LIMIT 4`;
+      db.query(sql, (err1, result2) => {
+        if (err1) res.status(500).send(err1);
+        res.status(200).send(result2);
+      });
+    });
+  },
 
   //   if (search) {
   //     console.log("masuk search");
