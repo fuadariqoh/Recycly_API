@@ -10,5 +10,8 @@ router.get("/getrewarduser", rewardControllers.getRewardUser);
 router.get("/totalreward", rewardControllers.getTotalReward);
 router.get("/rewarddetails", rewardControllers.getRewardDetail);
 router.get("/getothergift", rewardControllers.getOtherGift);
+router.get("/getcartdata", rewardControllers.getCartData);
+router.put("/deletefromcart", rewardControllers.deleteFromCart);
+router.put("/checkoutreward", rewardControllers.checkOutReward);
 
 module.exports = router;

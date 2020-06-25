@@ -12,34 +12,39 @@ module.exports = {
     });
   },
   buyReward: (req, res) => {
-    console.log(req.body);
-    let sql = ` insert into transactionReward SET ?`;
-    db.query(sql, req.body, (err, result) => {
+    let {
+      rewardId,
+      userId,
+      status,
+      categoryid,
+      decreasedPoints,
+      qty,
+    } = req.body;
+    console.log(rewardId, userId, status);
+    let sql = `select * from transactionReward where userId=${userId} AND status='${status}' AND rewardId=${rewardId}`;
+    db.query(sql, (err, result) => {
       if (err) res.status(500).send(err);
-      sql = `select points from users where id=${req.body.userId}`;
-      db.query(sql, (err1, result1) => {
-        if (err) res.status(500).send(err1);
-        console.log(result1[0].points);
-        var obj = {
-          points: result1[0].points - req.body.decreasedPoints,
+      if (result.length) {
+        obj = {
+          qty: result[0].qty + qty,
         };
-        sql = `update users set ? where id=${req.body.userId}`;
-        db.query(sql, obj, (err2, result2) => {
-          if (err2) res.status(500).send(err2);
-          sql = `select points from users where id=${req.body.userId}`;
-          db.query(sql, (err3, result3) => {
-            if (err3) res.status(500).send(err3);
-            res.status(200).send(result3);
-          });
+        sql = `update transactionReward SET ? where userId=${userId} AND status='${status}' AND rewardId=${rewardId}`;
+        db.query(sql, obj, (err1, result1) => {
+          if (err1) res.status(500).send(err1);
+          res.status(200).send(result1);
         });
-      });
+      } else {
+        sql = `insert into transactionReward SET ?`;
+        db.query(sql, req.body, (err2, result2) => {
+          if (err2) res.status(500).send(err2);
+          res.status(200).send(result2);
+        });
+      }
     });
   },
   getRewardUser: (req, res) => {
     const { categoryid, id } = req.query;
-    console.log(id, "idreward");
     if (categoryid == 1) {
-      console.log("masuk category1");
       let sql = `select * from reward where categoryid=${1}`;
       db.query(sql, (err, result) => {
         if (err) res.status(500).send(err);
@@ -47,14 +52,12 @@ module.exports = {
       });
     } else if (categoryid == 2) {
       let sql = `select * from reward where categoryid=${2}`;
-
       db.query(sql, (err, result) => {
         if (err) res.status(500).send(err);
         res.status(200).send(result);
       });
     } else if (categoryid == 3) {
       let sql = `select * from reward where categoryid=${3}`;
-
       db.query(sql, (err, result) => {
         if (err) res.status(500).send(err);
         res.status(200).send(result);
@@ -159,7 +162,78 @@ module.exports = {
       });
     });
   },
+  getCartData: (req, res) => {
+    const { id } = req.query;
+    let sql = `select tr.*,r.title,r.priceDescription 
+    from transactionReward tr
+    join reward r on tr.rewardId=r.id 
+    where userId=${id} AND status="oncart" and is_deleted=0`;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send(err);
+      res.status(200).send(result);
+      // for (i=0;i<result.length;i++){
 
+      // }
+    });
+  },
+  deleteFromCart: (req, res) => {
+    const { id } = req.query;
+    let sql = `select * from transactionReward where id=${id}`;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send(err);
+      if (result.length) {
+        let obj = {
+          is_deleted: 1,
+        };
+        sql = `update transactionReward set ? where id=${id}`;
+        db.query(sql, obj, (err1, result1) => {
+          if (err1) res.status(500).send(err1);
+          res.status(200).send({ message: "delete success" });
+        });
+      }
+    });
+  },
+  checkOutReward: (req, res) => {
+    const { userId, totalPoints } = req.query;
+    let sql = `select * from transactionReward where userId=${userId} AND status='oncart' AND is_deleted=0`;
+    db.query(sql, (err, result) => {
+      console.log(result);
+      if (err) res.status(500).send(err);
+      if (result.length) {
+        obj = {
+          status: "completed",
+        };
+        let sql = `update transactionReward set ? where userId=${userId} AND status='oncart' AND is_deleted=0`;
+        db.query(sql, obj, (err1, result1) => {
+          if (err1) res.status(500).send(err1);
+          sql = `select points,email from users where id=${userId}`;
+          db.query(sql, (err2, result2) => {
+            if (err2) res.status(500).send(err2);
+            obj = {
+              points: result2[0].points - totalPoints,
+            };
+            sql = `update users set ? where id=${userId}`;
+            db.query(sql, obj, (err3, result3) => {
+              if (err3) res.status(500).send(err3);
+              var mailoptions = {
+                from: "Team 5 <team5jc12@gmail.com>",
+                to: result2[0].email,
+                subject: "Thanks for redeem your reward",
+                html: `Thanks for redeem you reward:)
+
+                “The roots of all goodness lie in the soil of appreciation for goodness.” – Dalai Lama
+                `,
+              };
+              transporter.sendMail(mailoptions, (err4, result4) => {
+                if (err4) res.status(500).send(err4);
+                res.status(200).send({ message: "Email send to users" });
+              });
+            });
+          });
+        });
+      }
+    });
+  },
   //   if (search) {
   //     console.log("masuk search");
   //     var sql = `  SELECT COUNT(id) AS total
