@@ -220,5 +220,5 @@ module.exports = {
         if(err) res.status(500).send({status:false})
         return res.status(200).send(result)
     })
-},
+    },
 };
