@@ -290,7 +290,7 @@ module.exports = {
   getTotalUser: (req, res) => {
     const { search } = req.query;
     if (search) {
-      // console.log('masuk search')
+      console.log("masuk search");
       var sql = `  SELECT COUNT(id) AS total
                           FROM users 
                           WHERE is_deleted=0 AND id LIKE '%${search}%'`;
