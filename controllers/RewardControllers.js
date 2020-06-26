@@ -69,46 +69,6 @@ module.exports = {
         res.status(200).send(result);
       });
     }
-
-    // if (search) {
-    //   var sql = `  SELECT * from reward
-    //                 WHERE title LIKE '%${search}%'
-    //                 LIMIT ${page},6`;
-    //   db.query(sql, (err, result) => {
-    //     if (err)
-    //       res.status(500).send({ err, message: "error get program reward" });
-    //     return res.send(result);
-    //   });
-    // } else if (search && sort) {
-    //   var sql = `  SELECT * from reward
-    //                 WHERE title LIKE '%${search}%'
-    //                 ORDER BY ${sort}
-    //                 LIMIT ${page},6`;
-    //   db.query(sql, (err, result) => {
-    //     if (err)
-    //       res.status(500).send({ err, message: "error get program reward" });
-    //     return res.send(result);
-    //   });
-    // } else if (sort) {
-    //   let sql = ` SELECT * from reward
-    //             ORDER BY ${sort}
-    //             LIMIT ${page},6
-
-    //   `;
-    //   db.query(sql, (err, result) => {
-    //     if (err)
-    //       res.status(500).send({ err, message: "error get program reward" });
-    //     return res.send(result);
-    //   });
-    // } else {
-    //   var sql = `  SELECT * from reward
-    //                 LIMIT ${page},6`;
-    //   db.query(sql, (err, result) => {
-    //     if (err)
-    //       res.status(500).send({ err, message: "error get total reward" });
-    //     return res.send(result);
-    //   });
-    // }
   },
   // SEMENTARA TIDAK DIPAKAI
   getTotalReward: (req, res) => {
@@ -171,9 +131,6 @@ module.exports = {
     db.query(sql, (err, result) => {
       if (err) res.status(500).send(err);
       res.status(200).send(result);
-      // for (i=0;i<result.length;i++){
-
-      // }
     });
   },
   deleteFromCart: (req, res) => {
@@ -262,36 +219,4 @@ module.exports = {
       res.status(200).send(result);
     });
   },
-  //   if (search) {
-  //     console.log("masuk search");
-  //     var sql = `  SELECT COUNT(id) AS total
-  //                     FROM reward
-  //                     WHERE title LIKE '%${search}%' `;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get total program" });
-  //       console.log(result);
-  //       console.log(search);
-  //       return res.send(result[0]);
-  //     });
-  //   } else {
-  //     console.log("masuk else");
-  //     var sql = `  SELECT COUNT(id) AS total
-  //                     FROM reward `;
-  //     db.query(sql, (err, result) => {
-  //       if (err)
-  //         res.status(500).send({ err, message: "error get total program" });
-  //       return res.send(result[0]);
-  //     });
-  //   }
-  // },
-
-  //   r.title,priceDescription,description
-  // u.username,email
-  // rc.categoryname
-  // tr.decreasedPoints
 };
-//     r.title,priceDescription,description,id,
-// u.username,email,
-// rc.categoryname,
-// tr.decreasedPoints
