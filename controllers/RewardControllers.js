@@ -234,6 +234,34 @@ module.exports = {
       }
     });
   },
+  getTotalRewardTransaction: (req, res) => {
+    let sql = `
+    select count(id) AS total_reward from transactionReward where is_deleted=0 and status='completed'
+    `;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send(err);
+      res.status(200).send(result);
+    });
+  },
+  getAllDataTransactionReward: (req, res) => {
+    const { page } = req.query;
+    console.log(page, "page");
+
+    let sql = `select 
+              *
+              from transactionReward tr 
+              join users u on tr.userId=u.id
+              join rewardcategory rc on tr.categoryid=rc.id
+              join reward r on tr.rewardId=r.id
+              LIMIT ${page},5
+              
+    `;
+    db.query(sql, (err, result) => {
+      console.log(result);
+      if (err) res.status(500).send(err);
+      res.status(200).send(result);
+    });
+  },
   //   if (search) {
   //     console.log("masuk search");
   //     var sql = `  SELECT COUNT(id) AS total
@@ -257,4 +285,13 @@ module.exports = {
   //     });
   //   }
   // },
+
+  //   r.title,priceDescription,description
+  // u.username,email
+  // rc.categoryname
+  // tr.decreasedPoints
 };
+//     r.title,priceDescription,description,id,
+// u.username,email,
+// rc.categoryname,
+// tr.decreasedPoints
