@@ -120,18 +120,18 @@ module.exports = {
     });
   },
   verifieduser: (req, res) => {
-    const { id } = req.user;
+    const { username } = req.user;
     var obj = {
       is_verified: 1,
       last_login: new Date(),
       update_time: new Date(),
     };
     var sql = ` UPDATE users SET ? 
-                WHERE id=${id}`;
+                WHERE username='${username}'`;
     db.query(sql, obj, (err, result) => {
       if (err) return res.status(500).send(err);
       sql = ` SELECT * FROM users 
-              WHERE id=${id}`;
+              WHERE username='${username}'`;
       db.query(sql, (err, result1) => {
         if (err) return res.status(500).send(err);
         return res.status(200).send(result1[0]);
@@ -150,9 +150,9 @@ module.exports = {
     var mailoptions = {
       from: "Team 5 <team5jc12@gmail.com>",
       to: email,
-      subject: "[Re-send]Users Email Verification",
+      subject: "Users Email Verification",
       html: `tolong klik link ini untuk verifikasi :
-            <a href=${LinkVerifikasi}>MInimales verified</a>`,
+            <a href=${LinkVerifikasi}>Click This</a>`,
     };
     transporter.sendMail(mailoptions, (err, result2) => {
       if (err) return res.status(500).send(err);

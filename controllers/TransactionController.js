@@ -53,13 +53,17 @@ module.exports = {
         })
     },
     transactionDetail : (req,res) =>{
-        const {id}=req.params
+        const { idtrans } = req.query
+        const { id } = req.user
         var sql=`   SELECT * 
                     FROM transactions
-                    WHERE id=${id}`
+                    WHERE id=${idtrans} AND user_id=${id}`
             db.query(sql,(err,result)=>{
                 if(err) res.status(500).send({status:false})
-                return res.status(200).send(result)
+                if(result.length){
+                    return res.status(200).send(result)
+                }
+                return res.status(200).send({status:false})
             })
     },
     getSelectedPaymentMethod : (req,res) =>{
