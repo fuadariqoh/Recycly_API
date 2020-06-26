@@ -61,6 +61,7 @@ module.exports = {
                   SET ?`;
           var data = {
             user_id: result1.insertId,
+            name: firstname+' '+lastname,
             address,
             city,
             state,

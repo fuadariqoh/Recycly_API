@@ -240,4 +240,12 @@ module.exports = {
       return res.status(200).send(result);
     });
   },
+  getCategory: (req, res) => {
+    var sql = `   SELECT * 
+                FROM category`;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send({ status: false });
+      return res.status(200).send(result);
+    });
+  },
 };
