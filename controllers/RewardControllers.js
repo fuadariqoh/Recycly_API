@@ -202,19 +202,17 @@ module.exports = {
   },
   getAllDataTransactionReward: (req, res) => {
     const { page } = req.query;
-    console.log(page, "page");
-
     let sql = `select 
               *
               from transactionReward tr 
               join users u on tr.userId=u.id
               join rewardcategory rc on tr.categoryid=rc.id
               join reward r on tr.rewardId=r.id
+              where status='completed'
               LIMIT ${page},5
               
     `;
     db.query(sql, (err, result) => {
-      console.log(result);
       if (err) res.status(500).send(err);
       res.status(200).send(result);
     });

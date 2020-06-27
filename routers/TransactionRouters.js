@@ -12,6 +12,7 @@ router.get(
   transactionController.getSelectedPaymentMethod
 );
 router.post("/uploadpayment", auth, transactionController.uploadPayment);
+// MANAGE TRANSAKSI START
 router.get("/confirmpayment", transactionController.getDataWaitForConfirm);
 router.get("/getalltransaction", transactionController.getAllTransaction);
 router.get(
@@ -21,6 +22,27 @@ router.get(
 router.get(
   "/gettotaltransaction",
   transactionController.getTotalAllTransaction
+);
+
+router.put("/onaccepttransaction", transactionController.onAcceptTransaction);
+router.put("/declinetransaction", transactionController.onDeclineTransaction);
+router.put("/acceptpickup", transactionController.acceptPickUp);
+router.put("/declinepickup", transactionController.declinePickup);
+router.get(
+  "/gettotalconfirmpickup",
+  transactionController.getTotalConfirmPickup
+);
+router.get("/confirmpickup", transactionController.getConfirmPickUpData);
+// MANAGE TRANSAKSI END
+
+// TRANSACTION HISTORY START
+router.get(
+  "/totaltransactionhistory/:id",
+  transactionController.totalTransactionHistory
+);
+router.get(
+  "/datatransactionhistory/:id",
+  transactionController.getDataTotalTransactionHistory
 );
 
 module.exports = router;
