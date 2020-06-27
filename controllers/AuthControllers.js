@@ -263,6 +263,18 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  getPoints:(req,res)=>{
+    let sql=`SELECT points FROM users where id=${req.params.id}`
+    db.query(sql, (error, result) => {
+      if (error) res.status(500).send(error);
+      res.status(200).send(result);
+    });
+  },
+
+
+
+ 
+
   banUser: (req, res) => {
     let { id } = req.params;
     let sql = `select * from users where id=${id}`;
