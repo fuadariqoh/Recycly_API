@@ -3,7 +3,6 @@ const bodyparser = require("body-parser");
 const cors = require("cors");
 const bearertoken = require("express-bearer-token");
 var CronJob = require('cron').CronJob;
-// const cron = require("node-cron");
 const { db } = require("./connections");
 
 const app = express();
@@ -11,11 +10,12 @@ const app = express();
 
 var job = new CronJob('*/10 * * * *', function() {
   var data = {
-      status : 'canceled',
+      status : 'cancelled_by_system',
       reject_reason : 'payment expired'
     }
     var sql=` UPDATE transactions SET ?
-              WHERE status = 'waiting_payment' AND expired_time < CURRENT_TIMESTAMP`
+              WHERE (status = 'waiting_payment' OR status = 'canceled' ) 
+              AND expired_time < CURRENT_TIMESTAMP`
     db.query(sql, data, (err,result)=>{
         if(err) console.log(err)
         return console.log('Check expired payment:' + result.message)

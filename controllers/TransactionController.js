@@ -58,7 +58,15 @@ module.exports = {
     transactionDetail : (req,res) =>{
         const { idtrans } = req.query
         const { id } = req.user
-        var sql=`   SELECT * 
+        var data = {
+            status : 'cancelled_by_system',
+            reject_reason : 'payment expired'
+          }
+        var sql=`   UPDATE transactions SET ?
+                    WHERE id=${idtrans} AND status = 'waiting_payment' AND expired_time < CURRENT_TIMESTAMP`
+        db.query(sql, data, (err1,result1)=>{
+            if(err1) res.status(500).send({status:false})
+            sql=`   SELECT * 
                     FROM transactions
                     WHERE id=${idtrans} AND user_id=${id}`
             db.query(sql,(err,result)=>{
@@ -68,6 +76,8 @@ module.exports = {
                 }
                 return res.status(200).send({status:false})
             })
+
+          })
     },
     getSelectedPaymentMethod : (req,res) =>{
         const {id}=req.params
