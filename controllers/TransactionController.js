@@ -4,6 +4,9 @@ const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
 const { uploader } = require("./../helpers/uploader");
 const fs = require("fs");
+var moment = require("moment");
+const path = require("path");
+var handlebars = require("handlebars");
 
 module.exports = {
   getPaymentMethod: (req, res) => {
@@ -40,6 +43,7 @@ module.exports = {
       paymentmethod_id,
       total_payment,
       status: "waiting_payment",
+      expired_time: moment().add(1, "days").format("YYYY-MM-DD HH:mm:ss"),
     };
     var sql = `INSERT INTO transactions SET ?`;
     db.query(sql, data, (err, result) => {
@@ -55,13 +59,26 @@ module.exports = {
     });
   },
   transactionDetail: (req, res) => {
-    const { id } = req.params;
-    var sql = `   SELECT * 
+    const { idtrans } = req.query;
+    const { id } = req.user;
+    var data = {
+      status: "cancelled_by_system",
+      reject_reason: "payment expired",
+    };
+    var sql = `   UPDATE transactions SET ?
+                    WHERE id=${idtrans} AND status = 'waiting_payment' AND expired_time < CURRENT_TIMESTAMP`;
+    db.query(sql, data, (err1, result1) => {
+      if (err1) res.status(500).send({ status: false });
+      sql = `   SELECT * 
                     FROM transactions
-                    WHERE id=${id}`;
-    db.query(sql, (err, result) => {
-      if (err) res.status(500).send({ status: false });
-      return res.status(200).send(result);
+                    WHERE id=${idtrans} AND user_id=${id}`;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send({ status: false });
+        if (result.length) {
+          return res.status(200).send(result);
+        }
+        return res.status(200).send({ status: false });
+      });
     });
   },
   getSelectedPaymentMethod: (req, res) => {
@@ -228,7 +245,7 @@ module.exports = {
     const { page } = req.query;
     console.log("masuk", page);
     let sql = `select 
-    u.first_name,username,
+    u.first_name,username,email,
     a.phonenumber,city,state, 
     p.name AS program_name,
     pm.name AS paymentmethod,
@@ -278,7 +295,7 @@ module.exports = {
     });
   },
   declinePickup: (req, res) => {
-    const { id, reject_reason } = req.query;
+    const { id, reject_reason, email } = req.query;
     let sql = `select * from transactions
               where id=${id}`;
     db.query(sql, (err, result) => {
@@ -291,8 +308,45 @@ module.exports = {
         sql = `update transactions set ? where id=${id}`;
         db.query(sql, obj, (err1, result1) => {
           if (err1) res.status(500).send(err1);
-          console.log("declined success");
-          res.status(200).send(result1);
+          var readHTMLFile = function (path, callback) {
+            fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+              if (err) {
+                throw err;
+                callback(err);
+              } else {
+                callback(null, html);
+              }
+            });
+          };
+
+          readHTMLFile(
+            __dirname + "/.././assets/TransactionFailed.html",
+            function (err, html) {
+              var template = handlebars.compile(html);
+              var replacements = {};
+              var htmlToSend = template(replacements);
+              var mailOptions = {
+                from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+                to: email,
+                subject: "Transaction Failed",
+                html: htmlToSend,
+                attachments: [
+                  {
+                    filename: "logo.png",
+                    path: "./assets/images/logo.png",
+                    cid: "logo", //same cid value as in the html img src
+                  },
+                ],
+              };
+              transporter.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                  console.log({ error, message: "error send email" });
+                  // callback(error);
+                }
+              });
+              return res.status(200).send({ status: true });
+            }
+          );
         });
       }
     });

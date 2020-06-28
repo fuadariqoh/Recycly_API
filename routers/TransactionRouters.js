@@ -6,12 +6,7 @@ const router = express.Router();
 router.get("/paymentmethod", transactionController.getPaymentMethod);
 router.get("/getaddress/:id", transactionController.getUserAddress);
 router.post("/join", transactionController.joinProgram);
-router.get("/transactiondetail/:id", transactionController.transactionDetail);
-router.get(
-  "/selectedpayment/:id",
-  transactionController.getSelectedPaymentMethod
-);
-router.post("/uploadpayment", auth, transactionController.uploadPayment);
+
 // MANAGE TRANSAKSI START
 router.get("/confirmpayment", transactionController.getDataWaitForConfirm);
 router.get("/getalltransaction", transactionController.getAllTransaction);
@@ -23,6 +18,12 @@ router.get(
   "/gettotaltransaction",
   transactionController.getTotalAllTransaction
 );
+router.get("/transactiondetail", auth, transactionController.transactionDetail);
+router.get(
+  "/selectedpayment/:id",
+  transactionController.getSelectedPaymentMethod
+);
+router.post("/uploadpayment", auth, transactionController.uploadPayment);
 
 router.put("/onaccepttransaction", transactionController.onAcceptTransaction);
 router.put("/declinetransaction", transactionController.onDeclineTransaction);
