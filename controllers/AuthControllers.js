@@ -2,9 +2,10 @@ const { db } = require("../connections");
 const transporter = require("../helpers/mailer");
 const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
-const fs=require('fs')
-const path = require('path');
-var handlebars = require('handlebars');
+const { uploader } = require("../helpers/uploader");
+const fs = require("fs");
+const path = require("path");
+var handlebars = require("handlebars");
 
 module.exports = {
   register: (req, res) => {
@@ -63,7 +64,7 @@ module.exports = {
                   SET ?`;
           var data = {
             user_id: result1.insertId,
-            name: firstname+' '+lastname,
+            name: firstname + " " + lastname,
             address,
             city,
             state,
@@ -92,44 +93,47 @@ module.exports = {
             });
             var LinkVerifikasi = `http://localhost:3000/verified?token=${token}`;
             // SEND EMAIL VERIFICATION
-            var readHTMLFile = function(path, callback) {
-              fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
-                  if (err) {
-                      throw err;
-                      callback(err);
-                  }   
-                  else {
-                      callback(null, html);
-                  }
+            var readHTMLFile = function (path, callback) {
+              fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+                if (err) {
+                  throw err;
+                  callback(err);
+                } else {
+                  callback(null, html);
+                }
               });
             };
-    
-            readHTMLFile(__dirname + '/.././assets/VerifyEmail.html', function(err, html) {
+
+            readHTMLFile(__dirname + "/.././assets/VerifyEmail.html", function (
+              err,
+              html
+            ) {
               var template = handlebars.compile(html);
               var replacements = {
                 firstname,
                 lastname,
-                verificationlink : LinkVerifikasi
+                verificationlink: LinkVerifikasi,
               };
               var htmlToSend = template(replacements);
               var mailOptions = {
-                  from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
-                  to:email,
-                  subject:'User Account Verification',
-                  html:htmlToSend,
-                  attachments: [{
-                      filename: 'logo.png',
-                      path: './assets/images/logo.png',
-                      cid: 'logo' //same cid value as in the html img src
-                  }
-                ]
+                from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+                to: email,
+                subject: "User Account Verification",
+                html: htmlToSend,
+                attachments: [
+                  {
+                    filename: "logo.png",
+                    path: "./assets/images/logo.png",
+                    cid: "logo", //same cid value as in the html img src
+                  },
+                ],
               };
               transporter.sendMail(mailOptions, function (error, response) {
-                  if (error) {
-                      console.log({error, message:"error send email"});
-                      // callback(error);
-                  }
-              })
+                if (error) {
+                  console.log({ error, message: "error send email" });
+                  // callback(error);
+                }
+              });
               // SEND NEW USER DATA
               sql = ` SELECT * FROM users 
                       WHERE id=${result1.insertId}`;
@@ -176,52 +180,56 @@ module.exports = {
       email,
     });
     var sql = ` SELECT * FROM users
-                WHERE username='${username}'`
-    db.query(sql,(err,result)=>{
-      if (err) return res.status(500).send({err, message:'err get user data'});
+                WHERE username='${username}'`;
+    db.query(sql, (err, result) => {
+      if (err)
+        return res.status(500).send({ err, message: "err get user data" });
       var LinkVerifikasi = `http://localhost:3000/verified?token=${token}`;
       // SEND EMAIL VERIFICATION
-      var readHTMLFile = function(path, callback) {
-        fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
-            if (err) {
-                throw err;
-                callback(err);
-            }   
-            else {
-                callback(null, html);
-            }
+      var readHTMLFile = function (path, callback) {
+        fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+          if (err) {
+            throw err;
+            callback(err);
+          } else {
+            callback(null, html);
+          }
         });
       };
-  
-      readHTMLFile(__dirname + '/.././assets/VerifyEmail.html', function(err, html) {
+
+      readHTMLFile(__dirname + "/.././assets/VerifyEmail.html", function (
+        err,
+        html
+      ) {
         var template = handlebars.compile(html);
         var replacements = {
           firstname: result[0].first_name,
           lastname: result[0].last_name,
-          verificationlink : LinkVerifikasi
+          verificationlink: LinkVerifikasi,
         };
         var htmlToSend = template(replacements);
         var mailOptions = {
-            from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
-            to:email,
-            subject:'User Account Verification',
-            html:htmlToSend,
-            attachments: [{
-                filename: 'logo.png',
-                path: './assets/images/logo.png',
-                cid: 'logo' //same cid value as in the html img src
-            }
-          ]
+          from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+          to: email,
+          subject: "User Account Verification",
+          html: htmlToSend,
+          attachments: [
+            {
+              filename: "logo.png",
+              path: "./assets/images/logo.png",
+              cid: "logo", //same cid value as in the html img src
+            },
+          ],
         };
         transporter.sendMail(mailOptions, function (error, response) {
-            if (error) {
-                console.log({error, message:"error send email"});
-                // callback(error);
-            }
-        })
+          if (error) {
+            console.log({ error, message: "error send email" });
+            // callback(error);
+          }
+        });
         return res.status(200).send({ status: true });
       });
-    })
+    });
   },
 
   login: (req, res) => {
@@ -274,53 +282,56 @@ module.exports = {
           email,
         });
         var LinkPassword = `http://localhost:3000/resetpassword?token=${token}`;
-        var readHTMLFile = function(path, callback) {
-          fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
-              if (err) {
-                  throw err;
-                  callback(err);
-              }   
-              else {
-                  callback(null, html);
-              }
+        var readHTMLFile = function (path, callback) {
+          fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+            if (err) {
+              throw err;
+              callback(err);
+            } else {
+              callback(null, html);
+            }
           });
         };
-    
-        readHTMLFile(__dirname + '/.././assets/ResetPassword.html', function(err, html) {
+
+        readHTMLFile(__dirname + "/.././assets/ResetPassword.html", function (
+          err,
+          html
+        ) {
           var template = handlebars.compile(html);
           var replacements = {
             firstname: result[0].first_name,
             lastname: result[0].last_name,
-            passwordlink : LinkPassword
+            passwordlink: LinkPassword,
           };
           var htmlToSend = template(replacements);
           var mailOptions = {
-              from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
-              to:email,
-              subject:'Reset Account Password',
-              html:htmlToSend,
-              attachments: [{
-                  filename: 'logo.png',
-                  path: './assets/images/logo.png',
-                  cid: 'logo' //same cid value as in the html img src
-              }
-            ]
+            from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+            to: email,
+            subject: "Reset Account Password",
+            html: htmlToSend,
+            attachments: [
+              {
+                filename: "logo.png",
+                path: "./assets/images/logo.png",
+                cid: "logo", //same cid value as in the html img src
+              },
+            ],
           };
           transporter.sendMail(mailOptions, function (error, response) {
-              if (error) {
-                  console.log({error, message:"error send email"});
-                  // callback(error);
-              }
-          })
-        // var mailoptions = {
-        //   from: "Team 5 <team5jc12@gmail.com>",
-        //   to: email,
-        //   subject: "RECYC.LY Reset Password",
-        //   html: `Please click this link below to change your password :
-        //         <a href=${LinkPassword}>Change Password</a>`,
-        // };
-        // transporter.sendMail(mailoptions, (err, result2) => {
-        //   if (err) return res.status(500).send(err);
+            if (error) {
+              console.log({ error, message: "error send email" });
+              // callback(error);
+            }
+          });
+          // var mailoptions = {
+          //   from: "Team 5 <team5jc12@gmail.com>",
+          //   to: email,
+          //   subject: "RECYC.LY Reset Password",
+          //   html: `Please click this link below to change your password :
+          //         <a href=${LinkPassword}>Change Password</a>`,
+          // };
+          // transporter.sendMail(mailoptions, (err, result2) => {
+          //   if (err) return res.status(500).send(err);
           return res.status(200).send({ status: true });
         });
       } else {
@@ -352,11 +363,23 @@ module.exports = {
     });
   },
   getUser: (req, res) => {
-    let sql = `select id,username from users where is_deleted=0`;
-    db.query(sql, (error, result) => {
-      if (error) res.status(500).send(error);
-      res.status(200).send(result);
-    });
+    const { search, page } = req.query;
+    console.log(page);
+    if (search) {
+      console.log("masuk search", page);
+      let sql = `select id,username from users where is_deleted=0 AND id LIKE '%${search}%'  `;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    } else {
+      console.log("masuk else", page);
+      let sql = `select id,username from users where is_deleted=0 LIMIT ${page},6`;
+      db.query(sql, (error, result) => {
+        if (error) res.status(500).send(error);
+        res.status(200).send(result);
+      });
+    }
   },
   getAddress:(req,res)=>{
     let sql= `SELECT u.first_name,u.last_name,a.address,a.city,a.state,a.zipcode,a.phonenumber FROM finalproject.address a LEFT JOIN finalproject.users u ON a.user_id=u.id where a.user_id=${req.params.id};`
@@ -391,8 +414,53 @@ module.exports = {
       }
     });
   },
+  getTotalUser: (req, res) => {
+    const { search } = req.query;
+    if (search) {
+      console.log("masuk search");
+      var sql = `  SELECT COUNT(id) AS total
+                          FROM users 
+                          WHERE is_deleted=0 AND id LIKE '%${search}%'`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        return res.send(result[0]);
+      });
+    } else {
+      var sql = `  SELECT COUNT(id) AS total
+                        FROM users 
+                        WHERE is_deleted=0`;
+      db.query(sql, (err, result) => {
+        if (err)
+          res.status(500).send({ err, message: "error get total program" });
+        return res.send(result[0]);
+      });
+    }
+  },
   proofimage: (req, res) => {
-    console.log("ini req body", req.files);
+    const { id } = req.query;
+    console.log(id);
+    try {
+      const path = "/paymentproof";
+      const upload = uploader(path, "PROOF").fields([{ name: "image" }]);
+      upload(req, res, (err) => {
+        if (err) res.status(500).send(err);
+        console.log("lewat");
+        const { image } = req.files;
+        const imagePath = image ? path + "/" + image[0].filename : null;
+        var sql = `update transaction SET ? where id=${id}`;
+        obj = {
+          imgproof: imagePath,
+        };
+        db.query(sql, obj, (err1, result1) => {
+          console.log("masuk insert", obj);
+          if (err1) res.status(500).send(err1);
+          return res.status(200).send(result1);
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
   },
   keepLogin: (req, res) => {
     // console.log(req.user)

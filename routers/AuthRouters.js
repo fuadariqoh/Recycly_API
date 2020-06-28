@@ -13,7 +13,8 @@ router.get("/getusers", authControllers.getUser);
 router.get("/getaddress/:id", authControllers.getAddress);
 router.get("/getpoints/:id", authControllers.getPoints);
 router.put("/banuser/:id", authControllers.banUser);
-router.post("/proofimage", auth, authControllers.proofimage);
+router.post("/proofimage", authControllers.proofimage);
+router.get("/gettotaluser", authControllers.getTotalUser);
 router.get("/keeplogin", auth, authControllers.keepLogin);
 
 module.exports = router;
