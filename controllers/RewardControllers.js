@@ -34,6 +34,7 @@ module.exports = {
           res.status(200).send(result1);
         });
       } else {
+        console.log("masuk sini rewards");
         sql = `insert into transactionReward SET ?`;
         db.query(sql, req.body, (err2, result2) => {
           if (err2) res.status(500).send(err2);
@@ -141,6 +142,7 @@ module.exports = {
       if (result.length) {
         let obj = {
           is_deleted: 1,
+          status: "deleted",
         };
         sql = `update transactionReward set ? where id=${id}`;
         db.query(sql, obj, (err1, result1) => {
@@ -211,6 +213,21 @@ module.exports = {
               where status='completed'
               LIMIT ${page},5
               
+    `;
+    db.query(sql, (err, result) => {
+      if (err) res.status(500).send(err);
+      res.status(200).send(result);
+    });
+  },
+  getRewardReport: (req, res) => {
+    let sql = `
+    select  
+          sum(case when transactionReward.categoryid=1 then 1 else 0 end)AS REWARD1,
+          sum(case when transactionReward.categoryid=2 then 1 else 0 end)AS REWARD2,
+          sum(case when transactionReward.categoryid=3 then 1 else 0 end)AS REWARD3,
+          sum(case when transactionReward.categoryid=4 then 1 else 0 end)AS REWARD4
+          from transactionReward 
+          where transactionReward.status='completed'
     `;
     db.query(sql, (err, result) => {
       if (err) res.status(500).send(err);

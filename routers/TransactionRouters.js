@@ -44,5 +44,6 @@ router.get(
   "/datatransactionhistory/:id",
   transactionController.getDataTotalTransactionHistory
 );
+router.get("/gettransactionreport", transactionController.getTransactionReport);
 
 module.exports = router;

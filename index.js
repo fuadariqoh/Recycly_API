@@ -17,7 +17,12 @@ app.get("/", (req, res) => {
   res.status(200).send("<h1>SELAMAT DATANG DI API FINAL PROJECT JC 12</h1>");
 });
 
-const { authRouters, rewardRouters, programRouters, transactionRouters } = require("./routers");
+const {
+  authRouters,
+  rewardRouters,
+  programRouters,
+  transactionRouters,
+} = require("./routers");
 
 app.use("/users", authRouters);
 app.use("/reward", rewardRouters);

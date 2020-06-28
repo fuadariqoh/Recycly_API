@@ -229,7 +229,7 @@ module.exports = {
     console.log("masuk", page);
     let sql = `select 
     u.first_name,username,
-    a.phonenumber, 
+    a.phonenumber,city,state, 
     p.name AS program_name,
     pm.name AS paymentmethod,
     t.id,payment_image
@@ -279,14 +279,13 @@ module.exports = {
   },
   declinePickup: (req, res) => {
     const { id, reject_reason } = req.query;
-    console.log("decline pickup masuk", id, reject_reason);
     let sql = `select * from transactions
               where id=${id}`;
     db.query(sql, (err, result) => {
       if (err) res.status(500).send(err);
       if (result.length) {
         obj = {
-          status: "canceled",
+          status: "failed",
           reject_reason: reject_reason,
         };
         sql = `update transactions set ? where id=${id}`;
@@ -364,40 +363,49 @@ module.exports = {
       });
     }
   },
-  // uploadPhotoFromTransactionHistory:(req,res)=>{
-  //   try {
-  //     console.log("masuk try");
-  //     const path = "/payment"; //terserah namanya
-  //     const upload = uploader(path, "PAY").fields([{ name: "image" }]);
-  //     console.log(path);
-  //     upload(req, res, (err) => {
-  //       if (err) {
-  //         return res
-  //           .status(500)
-  //           .json({ message: "upload picture failed !", error: err.message });
-  //       }
-  //       console.log("lewat"); //pada tahap ini foto berhasil di upload
-  //       const { image } = req.files;
-  //       const { id } = JSON.parse(req.body.data);
-  //       const imagePath = image ? path + "/" + image[0].filename : null;
-  //       var sql = `   UPDATE transactions
-  //                           SET payment_image = '${imagePath}',status = 'waiting_verification'
-  //                           WHERE id = ${id}`;
-  //       db.query(sql, (err, result) => {
-  //         if (err) {
-  //           fs.unlinkSync("./public" + imagePath);
-  //           return res.status(500).json({
-  //             message:
-  //               "There is an error on the server. Please contact the administrator.",
-  //             error: err.message,
-  //           });
-  //         }
-  //         return res.status(200).send(result);
-  //       });
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).send({ message: "catch error" });
-  //   }
-  // },
-  // }
+  getTransactionReport: (req, res) => {
+    const { filter } = req.query;
+
+    if (filter) {
+      let sql = `
+      select 
+  sum(case when t.program_id=4 then 1 else 0 end)AS PROGRAM_4,
+  sum(case when t.program_id=5 then 1 else 0 end)AS PROGRAM_5,
+  sum(case when t.program_id=6 then 1 else 0 end)AS PROGRAM_6,
+  sum(case when t.program_id=7 then 1 else 0 end)AS PROGRAM_7,
+  sum(case when t.program_id=8 then 1 else 0 end)AS PROGRAM_8,
+  sum(case when t.program_id=9 then 1 else 0 end)AS PROGRAM_9,
+  sum(case when t.program_id=10 then 1 else 0 end)AS PROGRAM_10,
+  sum(case when t.program_id=11 then 1 else 0 end)AS PROGRAM_11,
+  sum(case when t.program_id=12 then 1 else 0 end)AS PROGRAM_12
+  from transactions t
+  join programs p on t.program_id=p.id
+  where t.status='${filter}'
+      `;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    } else {
+      let sql = `
+      select 
+  sum(case when t.program_id=4 then 1 else 0 end)AS PROGRAM_4,
+  sum(case when t.program_id=5 then 1 else 0 end)AS PROGRAM_5,
+  sum(case when t.program_id=6 then 1 else 0 end)AS PROGRAM_6,
+  sum(case when t.program_id=7 then 1 else 0 end)AS PROGRAM_7,
+  sum(case when t.program_id=8 then 1 else 0 end)AS PROGRAM_8,
+  sum(case when t.program_id=9 then 1 else 0 end)AS PROGRAM_9,
+  sum(case when t.program_id=10 then 1 else 0 end)AS PROGRAM_10,
+  sum(case when t.program_id=11 then 1 else 0 end)AS PROGRAM_11,
+  sum(case when t.program_id=12 then 1 else 0 end)AS PROGRAM_12
+  from transactions t
+  join programs p on t.program_id=p.id
+  where t.status='completed'
+      `;
+      db.query(sql, (err, result) => {
+        if (err) res.status(500).send(err);
+        res.status(200).send(result);
+      });
+    }
+  },
 };

@@ -1,9 +1,6 @@
 const express = require("express");
 const { rewardControllers } = require("../controllers/");
 const { auth } = require("../helpers/Auth");
-const {
-  getTotalRewardTransaction,
-} = require("../controllers/RewardControllers");
 const router = express.Router();
 
 router.get("/getreward", rewardControllers.getReward);
@@ -24,5 +21,6 @@ router.get(
   "/getallrewardtransaction",
   rewardControllers.getAllDataTransactionReward
 );
+router.get("/getrewardreport", rewardControllers.getRewardReport);
 
 module.exports = router;
