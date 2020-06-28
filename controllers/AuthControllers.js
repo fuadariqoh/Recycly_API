@@ -2,6 +2,9 @@ const { db } = require("../connections");
 const transporter = require("../helpers/mailer");
 const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
+const fs=require('fs')
+const path = require('path');
+var handlebars = require('handlebars');
 
 module.exports = {
   register: (req, res) => {
@@ -89,18 +92,44 @@ module.exports = {
             });
             var LinkVerifikasi = `http://localhost:3000/verified?token=${token}`;
             // SEND EMAIL VERIFICATION
-            var mailoptions = {
-              from: "Team 5 <team5jc12@gmail.com>",
-              to: email,
-              subject: "Users Email Verification",
-              html: `Please Click this link to verify your account
-                        <a href=${LinkVerifikasi}>Click This</a>`,
+            var readHTMLFile = function(path, callback) {
+              fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+                  if (err) {
+                      throw err;
+                      callback(err);
+                  }   
+                  else {
+                      callback(null, html);
+                  }
+              });
             };
-            transporter.sendMail(mailoptions, (err3, result3) => {
-              if (err3)
-                return res
-                  .status(500)
-                  .send({ err3, message: "error send email" });
+    
+            readHTMLFile(__dirname + '/.././assets/VerifyEmail.html', function(err, html) {
+              var template = handlebars.compile(html);
+              var replacements = {
+                firstname,
+                lastname,
+                verificationlink : LinkVerifikasi
+              };
+              var htmlToSend = template(replacements);
+              var mailOptions = {
+                  from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
+                  to:email,
+                  subject:'User Account Verification',
+                  html:htmlToSend,
+                  attachments: [{
+                      filename: 'logo.png',
+                      path: './assets/images/logo.png',
+                      cid: 'logo' //same cid value as in the html img src
+                  }
+                ]
+              };
+              transporter.sendMail(mailOptions, function (error, response) {
+                  if (error) {
+                      console.log({error, message:"error send email"});
+                      // callback(error);
+                  }
+              })
               // SEND NEW USER DATA
               sql = ` SELECT * FROM users 
                       WHERE id=${result1.insertId}`;
@@ -146,18 +175,53 @@ module.exports = {
       username: username,
       email,
     });
-    var LinkVerifikasi = `http://localhost:3000/verified?token=${token}`;
-    var mailoptions = {
-      from: "Team 5 <team5jc12@gmail.com>",
-      to: email,
-      subject: "Users Email Verification",
-      html: `tolong klik link ini untuk verifikasi :
-            <a href=${LinkVerifikasi}>Click This</a>`,
-    };
-    transporter.sendMail(mailoptions, (err, result2) => {
-      if (err) return res.status(500).send(err);
-      return res.status(200).send({ status: true });
-    });
+    var sql = ` SELECT * FROM users
+                WHERE username='${username}'`
+    db.query(sql,(err,result)=>{
+      if (err) return res.status(500).send({err, message:'err get user data'});
+      var LinkVerifikasi = `http://localhost:3000/verified?token=${token}`;
+      // SEND EMAIL VERIFICATION
+      var readHTMLFile = function(path, callback) {
+        fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+            if (err) {
+                throw err;
+                callback(err);
+            }   
+            else {
+                callback(null, html);
+            }
+        });
+      };
+  
+      readHTMLFile(__dirname + '/.././assets/VerifyEmail.html', function(err, html) {
+        var template = handlebars.compile(html);
+        var replacements = {
+          firstname: result[0].first_name,
+          lastname: result[0].last_name,
+          verificationlink : LinkVerifikasi
+        };
+        var htmlToSend = template(replacements);
+        var mailOptions = {
+            from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
+            to:email,
+            subject:'User Account Verification',
+            html:htmlToSend,
+            attachments: [{
+                filename: 'logo.png',
+                path: './assets/images/logo.png',
+                cid: 'logo' //same cid value as in the html img src
+            }
+          ]
+        };
+        transporter.sendMail(mailOptions, function (error, response) {
+            if (error) {
+                console.log({error, message:"error send email"});
+                // callback(error);
+            }
+        })
+        return res.status(200).send({ status: true });
+      });
+    })
   },
 
   login: (req, res) => {
@@ -210,15 +274,53 @@ module.exports = {
           email,
         });
         var LinkPassword = `http://localhost:3000/resetpassword?token=${token}`;
-        var mailoptions = {
-          from: "Team 5 <team5jc12@gmail.com>",
-          to: email,
-          subject: "RECYC.LY Reset Password",
-          html: `Please click this link below to change your password :
-                <a href=${LinkPassword}>Change Password</a>`,
+        var readHTMLFile = function(path, callback) {
+          fs.readFile(path, {encoding: 'utf-8'}, function (err, html) {
+              if (err) {
+                  throw err;
+                  callback(err);
+              }   
+              else {
+                  callback(null, html);
+              }
+          });
         };
-        transporter.sendMail(mailoptions, (err, result2) => {
-          if (err) return res.status(500).send(err);
+    
+        readHTMLFile(__dirname + '/.././assets/ResetPassword.html', function(err, html) {
+          var template = handlebars.compile(html);
+          var replacements = {
+            firstname: result[0].first_name,
+            lastname: result[0].last_name,
+            passwordlink : LinkPassword
+          };
+          var htmlToSend = template(replacements);
+          var mailOptions = {
+              from:'Recycly - Do Not Reply <team5jc12@gmail.com>',
+              to:email,
+              subject:'Reset Account Password',
+              html:htmlToSend,
+              attachments: [{
+                  filename: 'logo.png',
+                  path: './assets/images/logo.png',
+                  cid: 'logo' //same cid value as in the html img src
+              }
+            ]
+          };
+          transporter.sendMail(mailOptions, function (error, response) {
+              if (error) {
+                  console.log({error, message:"error send email"});
+                  // callback(error);
+              }
+          })
+        // var mailoptions = {
+        //   from: "Team 5 <team5jc12@gmail.com>",
+        //   to: email,
+        //   subject: "RECYC.LY Reset Password",
+        //   html: `Please click this link below to change your password :
+        //         <a href=${LinkPassword}>Change Password</a>`,
+        // };
+        // transporter.sendMail(mailoptions, (err, result2) => {
+        //   if (err) return res.status(500).send(err);
           return res.status(200).send({ status: true });
         });
       } else {

@@ -4,6 +4,7 @@ const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
 const {uploader}=require('./../helpers/uploader')
 const fs = require('fs')
+var moment = require('moment');
 
 module.exports = {
     getPaymentMethod : (req,res) =>{
@@ -38,7 +39,9 @@ module.exports = {
             program_id,
             paymentmethod_id,
             total_payment,
-            status:'waiting_payment'
+            status:'waiting_payment',
+            expired_time:moment().add(1, 'days').format("YYYY-MM-DD HH:mm:ss")
+
         }
         var sql=`INSERT INTO transactions SET ?`
         db.query(sql, data, (err, result)=>{
