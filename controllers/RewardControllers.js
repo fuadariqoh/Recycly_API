@@ -2,6 +2,11 @@ const { db } = require("../connections");
 const transporter = require("../helpers/mailer");
 const { createJWTToken } = require("../helpers/jwt");
 const encrypt = require("../helpers/crypto");
+const fs = require("fs");
+var moment = require("moment");
+const path = require("path");
+var handlebars = require("handlebars");
+const { uploader } = require("./../helpers/uploader");
 
 module.exports = {
   getReward: (req, res) => {
@@ -174,19 +179,45 @@ module.exports = {
             sql = `update users set ? where id=${userId}`;
             db.query(sql, obj, (err3, result3) => {
               if (err3) res.status(500).send(err3);
-              var mailoptions = {
-                from: "Team 5 <team5jc12@gmail.com>",
-                to: result2[0].email,
-                subject: "Thanks for redeem your reward",
-                html: `Thanks for redeem you reward:)
-
-                “The roots of all goodness lie in the soil of appreciation for goodness.” – Dalai Lama
-                `,
+              var readHTMLFile = function (path, callback) {
+                fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+                  if (err) {
+                    throw err;
+                    callback(err);
+                  } else {
+                    callback(null, html);
+                  }
+                });
               };
-              transporter.sendMail(mailoptions, (err4, result4) => {
-                if (err4) res.status(500).send(err4);
-                res.status(200).send({ message: "Email send to users" });
-              });
+
+              readHTMLFile(
+                __dirname + "/.././assets/RewardSuccess.html",
+                function (err, html) {
+                  var template = handlebars.compile(html);
+                  var replacements = {};
+                  var htmlToSend = template(replacements);
+                  var mailOptions = {
+                    from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+                    to: result2[0].email,
+                    subject: "Reward Checkout success",
+                    html: htmlToSend,
+                    attachments: [
+                      {
+                        filename: "logo.png",
+                        path: "./assets/images/logo.png",
+                        cid: "logo", //same cid value as in the html img src
+                      },
+                    ],
+                  };
+                  transporter.sendMail(mailOptions, function (error, response) {
+                    if (error) {
+                      console.log({ error, message: "error send email" });
+                      // callback(error);
+                    }
+                  });
+                  return res.status(200).send({ status: true });
+                }
+              );
             });
           });
         });

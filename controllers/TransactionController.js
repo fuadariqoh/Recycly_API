@@ -201,6 +201,7 @@ module.exports = {
           if (err) res.status(500).send(err);
           sql = `select * from transactions where id=${id} AND status='on_pickup'`;
           db.query(sql, (err2, result2) => {
+            console.log(result2);
             if (err2) res.status(500).send(err2);
             res.status(200).send(result2);
           });
@@ -266,11 +267,13 @@ module.exports = {
   acceptPickUp: (req, res) => {
     const { id } = req.query;
     let sql = `select p.point,
-                      u.points,
-                      t.user_id
+                      u.points,email,
+                      t.user_id,total_payment,
+                      pm.name
                       from transactions t
                        join programs p on t.program_id=p.id
                       join users u on t.user_id=u.id
+                      join paymentmethod pm on t.paymentmethod_id=pm.id
                      where t.id=${id}`;
     db.query(sql, (err, result) => {
       console.log(result[0]);
@@ -288,7 +291,49 @@ module.exports = {
           sql = `update users set ? where id=${result[0].user_id}`;
           db.query(sql, obj, (err2, result2) => {
             if (err2) res.status(500).send(err2);
-            res.status(200).send(result2);
+            var readHTMLFile = function (path, callback) {
+              fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
+                if (err) {
+                  throw err;
+                  callback(err);
+                } else {
+                  callback(null, html);
+                }
+              });
+            };
+
+            readHTMLFile(__dirname + "/.././assets/Invoice.html", function (
+              err,
+              html
+            ) {
+              var template = handlebars.compile(html);
+              var replacements = {
+                total_payment: result[0].total_payment,
+                name: result[0].name,
+                point: result[0].point,
+              };
+              var htmlToSend = template(replacements);
+              var mailOptions = {
+                from: "Recycly - Do Not Reply <team5jc12@gmail.com>",
+                to: result[0].email,
+                subject: "Invoice",
+                html: htmlToSend,
+                attachments: [
+                  {
+                    filename: "logo.png",
+                    path: "./assets/images/logo.png",
+                    cid: "logo", //same cid value as in the html img src
+                  },
+                ],
+              };
+              transporter.sendMail(mailOptions, function (error, response) {
+                if (error) {
+                  console.log({ error, message: "error send email" });
+                  // callback(error);
+                }
+              });
+              return res.status(200).send({ status: true });
+            });
           });
         });
       }
