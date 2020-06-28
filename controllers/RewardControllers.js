@@ -11,6 +11,22 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  getRewardSpec:(req,res) => {
+    var sql = `SELECT r.id,r.title,r.description,r.priceDescription,r.image,r.p1,r.p2,r.categoryid,rc.categoryname FROM finalproject.reward r LEFT JOIN finalproject.rewardcategory rc ON r.categoryid=rc.id`
+    db.query(sql, (error, result) => {
+      if (error) res.status(500).send(error);
+      res.status(200).send(result);
+    });
+  },
+  getRewardRedeemed:(req,res) => {
+    var sql = `SELECT sum(decreasedPoints) AS reedemedPoints FROM finalproject.transactionReward where userId=${req.params.id} and status='completed'`
+    db.query(sql, (error, result) => {
+      if (error) res.status(500).send(error);
+      res.status(200).send(result);
+    });
+  },
+
+
   buyReward: (req, res) => {
     let sql = ` insert into transactionReward SET ?  `;
     db.query(sql, req.body, (err, result) => {
@@ -46,4 +62,16 @@ module.exports = {
       }
     });
   },
+  //my-impact reward list
+  getRewardCompletedbyUser:(req,res)=>{
+    sql = `SELECT p.name,p.point,p.purchased FROM finalproject.transactions t 
+    LEFT JOIN finalproject.programs p 
+    ON t.program_id=p.id 
+    WHERE status='completed' 
+    AND user_id=${req.params.id}`
+    db.query(sql,(err,result)=>{
+      if(err) res.status(500).send({status:false})
+      return res.status(200).send(result)
+  })
+}
 };

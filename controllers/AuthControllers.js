@@ -358,6 +358,20 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  getAddress:(req,res)=>{
+    let sql= `SELECT u.first_name,u.last_name,a.address,a.city,a.state,a.zipcode,a.phonenumber FROM finalproject.address a LEFT JOIN finalproject.users u ON a.user_id=u.id where a.user_id=${req.params.id};`
+    db.query(sql, (error, result) => {
+      if (error) res.status(500).send(error);
+      res.status(200).send(result);
+    });
+  },
+  getPoints:(req,res)=>{
+    let sql=`SELECT points FROM users where id=${req.params.id}`
+    db.query(sql, (error, result) => {
+      if (error) res.status(500).send(error);
+      res.status(200).send(result);
+    });
+  },
   banUser: (req, res) => {
     let { id } = req.params;
     let sql = `select * from users where id=${id}`;
