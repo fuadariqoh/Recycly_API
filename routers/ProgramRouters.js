@@ -5,6 +5,9 @@ const router = express.Router();
 
 router.post('/addprogram',programControllers.addProgram)
 router.get('/getprogram',programControllers.getProgram)
+router.get('/getallprogram',programControllers.getAllProgram)
+
+router.get('/gettransactionhistory/:id',programControllers.getTransactionHistory)
 
 
 //================ USER ROUTER FOR PAGINATION, SEARCH, FILTER, SORT ================//

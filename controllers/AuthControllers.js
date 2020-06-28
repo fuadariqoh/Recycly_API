@@ -270,11 +270,6 @@ module.exports = {
       res.status(200).send(result);
     });
   },
-
-
-
- 
-
   banUser: (req, res) => {
     let { id } = req.params;
     let sql = `select * from users where id=${id}`;
