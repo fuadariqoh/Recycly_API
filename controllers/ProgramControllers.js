@@ -239,5 +239,30 @@ module.exports = {
       if (err) res.status(500).send({ status: false });
       return res.status(200).send(result);
     });
-  }
+  },
+  getCategory:(req,res)=>{
+    var sql=`   SELECT * 
+                FROM category`
+    db.query(sql,(err,result)=>{
+        if(err) res.status(500).send({status:false})
+        return res.status(200).send(result)
+    })
+    },
+    getTransactionHistory:(req,res)=>{
+    sql =`SELECT p.name,p.price,t.status,t.id FROM finalproject.transactions t 
+    LEFT JOIN finalproject.programs p ON t.program_id=p.id 
+    WHERE t.user_id=${req.params.id}`
+    db.query(sql,(err,result)=>{
+        if(err) res.status(500).send({status:false})
+        return res.status(200).send(result)
+    })
+    },
+    //Manage Program, get all program
+    getAllProgram:(req,res) => {
+        var sql = `SELECT * FROM finalproject.programs`
+        db.query(sql, (error, result) => {
+          if (error) res.status(500).send(error);
+          res.status(200).send(result);
+        });
+      },
 };
