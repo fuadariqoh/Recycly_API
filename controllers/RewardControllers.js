@@ -16,6 +16,7 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  // ADMIN . Manage Reward. Get Reward Info
   getRewardSpec:(req,res) => {
     var sql = `SELECT r.id,r.title,r.description,r.priceDescription,r.image,r.p1,r.p2,r.categoryid,rc.categoryname FROM finalproject.reward r LEFT JOIN finalproject.rewardcategory rc ON r.categoryid=rc.id`
     db.query(sql, (error, result) => {
@@ -23,6 +24,7 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  // USER. My-Impact. Ambil Point yang sudah di redeemed. 
   getRewardRedeemed:(req,res) => {
     var sql = `SELECT sum(decreasedPoints) AS reedemedPoints FROM finalproject.transactionReward where userId=${req.params.id} and status='completed'`
     db.query(sql, (error, result) => {
@@ -241,9 +243,9 @@ module.exports = {
     });
   },
 
-  //my-impact reward list
+  //USER. My-Impact . Ambil Reward List yang sudah diredeemed User
   getRewardCompletedbyUser:(req,res)=>{
-    sql = `SELECT p.name,p.point,p.purchased FROM finalproject.transactions t 
+    sql = `SELECT p.name,p.point,t.trash_qty FROM finalproject.transactions t 
     LEFT JOIN finalproject.programs p 
     ON t.program_id=p.id 
     WHERE status='completed' 

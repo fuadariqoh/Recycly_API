@@ -12,6 +12,7 @@ router.get("/resetpassword", auth, authControllers.ResetPassword);
 router.get("/getusers", authControllers.getUser);
 router.get("/getaddress/:id", authControllers.getAddress);
 router.get("/getpoints/:id", authControllers.getPoints);
+router.get("/getalluserinfo/:id", authControllers.getAllUserInfo);
 router.put("/banuser/:id", authControllers.banUser);
 router.post("/proofimage", authControllers.proofimage);
 router.get("/gettotaluser", authControllers.getTotalUser);

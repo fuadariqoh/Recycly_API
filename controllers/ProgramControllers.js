@@ -240,7 +240,8 @@ module.exports = {
         return res.status(200).send(result)
     })
     },
-    getTransactionHistory:(req,res)=>{
+    //USER. Collection-Program, get simple Transaction History.
+  getTransactionHistory:(req,res)=>{
     sql =`SELECT p.name,p.price,t.status,t.id FROM finalproject.transactions t 
     LEFT JOIN finalproject.programs p ON t.program_id=p.id 
     WHERE t.user_id=${req.params.id}`
@@ -249,7 +250,7 @@ module.exports = {
         return res.status(200).send(result)
     })
     },
-    //Manage Program, get all program
+    //ADMIN. Manage Program, get all program
     getAllProgram:(req,res) => {
         var sql = `SELECT * FROM finalproject.programs`
         db.query(sql, (error, result) => {

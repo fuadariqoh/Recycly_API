@@ -381,6 +381,7 @@ module.exports = {
       });
     }
   },
+  //USER. Personal-Info . Ambil Info User saat ini .
   getAddress:(req,res)=>{
     let sql= `SELECT u.first_name,u.last_name,a.address,a.city,a.state,a.zipcode,a.phonenumber FROM finalproject.address a LEFT JOIN finalproject.users u ON a.user_id=u.id where a.user_id=${req.params.id};`
     db.query(sql, (error, result) => {
@@ -388,6 +389,7 @@ module.exports = {
       res.status(200).send(result);
     });
   },
+  //USER. My-Impact . Ambil Point saat ini .
   getPoints:(req,res)=>{
     let sql=`SELECT points FROM users where id=${req.params.id}`
     db.query(sql, (error, result) => {
@@ -474,4 +476,15 @@ module.exports = {
       res.status(200).send({ ...result[0], token: token });
     });
   },
+  //USER . Edit-Profile. Get all Info
+  getAllUserInfo:(req, res)=>{
+    var sql = `SELECT u.first_name,u.last_name,u.username,u.email,a.name,a.address,a.city,
+    a.state,a.zipcode,a.phonenumber 
+    FROM users u LEFT JOIN address a ON u.id=a.user_id 
+    WHERE u.id=${req.params.id}`
+    db.query(sql, (err,result)=>{
+      if (err) return res.status(500).send(err);
+      res.status(200).send(result);
+    })
+  }
 };

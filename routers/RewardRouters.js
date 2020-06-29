@@ -10,7 +10,6 @@ router.get('/getrewardcompletedbyuser/:id',rewardControllers.getRewardCompletedb
 
 router.put("/buyreward", rewardControllers.buyReward);
 router.post("/buyreward", rewardControllers.buyReward);
-router.put("/acceptreward/:id", rewardControllers.acceptTransactionReward);
 router.get("/getrewarduser", rewardControllers.getRewardUser);
 router.get("/totalreward", rewardControllers.getTotalReward);
 router.get("/rewarddetails", rewardControllers.getRewardDetail);
